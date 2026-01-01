@@ -401,27 +401,37 @@ body {
     text-align: center;
     width: 100%;
     margin-top: var(--spacing-md);
+    color: var(--white) !important;
+    text-decoration: none;
 }
 
 .btn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+    color: var(--white) !important;
 }
 
 .btn-primary {
     background: var(--gradient-primary);
-    color: var(--white);
+    color: var(--white) !important;
     box-shadow: var(--shadow-light);
 }
 
 .btn-primary:hover:not(:disabled) {
     transform: translateY(-2px);
     box-shadow: var(--shadow-medium);
+    color: var(--white) !important;
+}
+
+.btn-primary:visited,
+.btn-primary:active,
+.btn-primary:focus {
+    color: var(--white) !important;
 }
 
 .btn-danger {
     background: var(--danger-red);
-    color: var(--white);
+    color: var(--white) !important;
     box-shadow: var(--shadow-light);
 }
 
@@ -429,16 +439,30 @@ body {
     background: var(--danger-red-dark);
     transform: translateY(-2px);
     box-shadow: var(--shadow-medium);
+    color: var(--white) !important;
+}
+
+.btn-danger:visited,
+.btn-danger:active,
+.btn-danger:focus {
+    color: var(--white) !important;
 }
 
 .btn-secondary {
     background: var(--medium-gray);
-    color: var(--white);
+    color: var(--white) !important;
 }
 
 .btn-secondary:hover:not(:disabled) {
     background: var(--dark-gray);
     transform: translateY(-2px);
+    color: var(--white) !important;
+}
+
+.btn-secondary:visited,
+.btn-secondary:active,
+.btn-secondary:focus {
+    color: var(--white) !important;
 }
 
 /* Error Messages */
@@ -553,6 +577,13 @@ body {
 .modal-buttons .btn {
     flex: 1;
     margin-top: 0;
+    color: var(--white) !important;
+}
+
+.modal-buttons .btn:visited,
+.modal-buttons .btn:active,
+.modal-buttons .btn:focus {
+    color: var(--white) !important;
 }
 
 /* Loading Overlay */
@@ -814,6 +845,13 @@ body {
 .popup-footer .btn {
     width: auto;
     margin: 0;
+    color: var(--white) !important;
+}
+
+.popup-footer .btn:visited,
+.popup-footer .btn:active,
+.popup-footer .btn:focus {
+    color: var(--white) !important;
 }
 
 /* Popup Types */
