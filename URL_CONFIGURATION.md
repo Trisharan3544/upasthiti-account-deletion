@@ -2,13 +2,30 @@
 
 ## 🔗 Setting Up Privacy Policy and Terms URLs
 
-The account deletion pages need to link to your Privacy Policy and Terms of Service pages. These URLs are configured in a central location for easy updates.
+The account deletion pages need to link to your Privacy Policy and Terms of Service pages. 
 
-## 📝 Configuration File
+## ⚠️ IMPORTANT: Update URLs in HTML Files
 
-Edit the file: **`js/config.js`**
+**You MUST replace `your-username` with your actual GitHub username in ALL HTML files:**
 
-Update these URLs with your actual GitHub Pages URLs:
+### Files to Update:
+1. `index.html` - Line 112-113
+2. `login.html` - Footer links
+3. `reauth.html` - Footer links
+4. `confirm.html` - Footer links
+5. `success.html` - Footer links
+
+**Find and replace:**
+- `https://your-username.github.io/upasthiti-privacy-policy/`
+- `https://your-username.github.io/upasthiti-privacy-policy/terms.html`
+
+**With your actual URLs:**
+- `https://[YOUR-ACTUAL-USERNAME].github.io/upasthiti-privacy-policy/`
+- `https://[YOUR-ACTUAL-USERNAME].github.io/upasthiti-privacy-policy/terms.html`
+
+## 📝 Optional: Configuration File
+
+You can also update **`js/config.js`** to override the HTML URLs:
 
 ```javascript
 const CONFIG = {
@@ -22,6 +39,8 @@ const CONFIG = {
     CONTACT_EMAIL: 'teamupasthiti@gmail.com'
 };
 ```
+
+**Note**: The HTML files have default URLs that work immediately. The config.js file can override them if you prefer centralized configuration.
 
 ## 🚀 Quick Setup
 

@@ -79,8 +79,8 @@
             <div class="footer-content">
                 <p>&copy; 2025 Upasthiti. All rights reserved.</p>
                 <div class="footer-links">
-                    <a href="#" id="privacy-policy-link" class="footer-link" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
-                    <a href="#" id="terms-link" class="footer-link" target="_blank" rel="noopener noreferrer">Terms of Service</a>
+                    <a href="https://trisharan3544.github.io/upasthiti-privacy-policy/" id="privacy-policy-link" class="footer-link" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+                    <a href="https://trisharan3544.github.io/upasthiti-privacy-policy/terms.html" id="terms-link" class="footer-link" target="_blank" rel="noopener noreferrer">Terms of Service</a>
                 </div>
             </div>
         </div>
@@ -88,14 +88,26 @@
 
     <script src="js/config.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            if (window.APP_CONFIG) {
-                const privacyLink = document.getElementById('privacy-policy-link');
-                const termsLink = document.getElementById('terms-link');
-                if (privacyLink) privacyLink.href = window.APP_CONFIG.PRIVACY_POLICY_URL;
-                if (termsLink) termsLink.href = window.APP_CONFIG.TERMS_URL;
+        (function() {
+            function updateLinks() {
+                if (window.APP_CONFIG) {
+                    const privacyLink = document.getElementById('privacy-policy-link');
+                    const termsLink = document.getElementById('terms-link');
+                    if (privacyLink && window.APP_CONFIG.PRIVACY_POLICY_URL) {
+                        privacyLink.href = window.APP_CONFIG.PRIVACY_POLICY_URL;
+                    }
+                    if (termsLink && window.APP_CONFIG.TERMS_URL) {
+                        termsLink.href = window.APP_CONFIG.TERMS_URL;
+                    }
+                }
             }
-        });
+            if (window.APP_CONFIG) {
+                updateLinks();
+            } else {
+                document.addEventListener('DOMContentLoaded', updateLinks);
+                setTimeout(updateLinks, 100);
+            }
+        })();
     </script>
 
     <!-- Loading Overlay -->
