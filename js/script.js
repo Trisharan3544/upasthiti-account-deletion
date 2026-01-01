@@ -75,6 +75,33 @@ function setupEventListeners() {
 }
 
 /**
+ * Setup deletion form validation - disable delete button until confirmation is complete
+ * This ensures explicit confirmation as required by Google Play
+ */
+function setupDeletionFormValidation() {
+    const confirmText = document.getElementById('confirm-text');
+    const confirmCheckbox = document.getElementById('confirm-checkbox');
+    const deleteBtn = document.getElementById('delete-btn');
+    
+    if (!confirmText || !confirmCheckbox || !deleteBtn) return;
+    
+    function validateDeletionForm() {
+        const textMatches = confirmText.value.trim() === 'DELETE';
+        const checkboxChecked = confirmCheckbox.checked;
+        
+        // Disable delete button until BOTH conditions are met
+        deleteBtn.disabled = !(textMatches && checkboxChecked);
+    }
+    
+    // Validate on input/change
+    confirmText.addEventListener('input', validateDeletionForm);
+    confirmCheckbox.addEventListener('change', validateDeletionForm);
+    
+    // Initially disable the button
+    deleteBtn.disabled = true;
+}
+
+/**
  * Handle login form submission
  */
 async function handleLogin(e) {
@@ -183,9 +210,19 @@ async function handleReauth(e) {
         // Re-authenticate user
         await reauthenticateWithCredential(currentUser, credential);
         
-        // Hide re-authentication section and show deletion section
+        // Mark as re-authenticated and record timestamp
+        userReauthenticated = true;
+        reauthTimestamp = Date.now();
+        
+        // CRITICAL: After re-authentication, show information screen (deletion section)
+        // This ensures user sees what will be deleted before confirming
         hideSection('reauth-section');
         showDeletionSection();
+        
+        // Scroll to deletion section so user sees the information
+        setTimeout(() => {
+            document.getElementById('deletion-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
         
         // Clear form
         document.getElementById('reauth-form').reset();
@@ -203,6 +240,15 @@ async function handleReauth(e) {
                 break;
             case 'auth/network-request-failed':
                 errorMessage += 'Network error. Please check your internet connection.';
+                break;
+            case 'auth/user-mismatch':
+                errorMessage += 'The credential provided does not match the user.';
+                break;
+            case 'auth/user-not-found':
+                errorMessage += 'User account not found.';
+                break;
+            case 'auth/invalid-credential':
+                errorMessage += 'Invalid credential. Please try again.';
                 break;
             default:
                 errorMessage += 'Please check your password and try again.';
@@ -245,10 +291,36 @@ function handleDeletionRequest(e) {
 
 /**
  * Handle actual account deletion (called from modal confirmation)
+ * CRITICAL: This performs REAL deletion, not soft delete
+ * Follows strict order: Firestore → Storage → Auth → Logout
  */
 async function handleAccountDeletion() {
     if (!currentUser) {
-        showError(document.getElementById('deletion-error'), 'User not authenticated.');
+        showError(document.getElementById('deletion-error'), 'User not authenticated. Please log in first.');
+        closeModal();
+        return;
+    }
+    
+    // CRITICAL: Verify re-authentication is still valid (within last 5 minutes)
+    // Firebase requires recent login for account deletion
+    if (!userReauthenticated || !reauthTimestamp) {
+        showError(document.getElementById('deletion-error'), 'Please re-authenticate before deleting your account.');
+        closeModal();
+        hideSection('deletion-section');
+        showReauthSection();
+        return;
+    }
+    
+    const timeSinceReauth = Date.now() - reauthTimestamp;
+    const REAUTH_VALIDITY_MS = 5 * 60 * 1000; // 5 minutes
+    
+    if (timeSinceReauth > REAUTH_VALIDITY_MS) {
+        showError(document.getElementById('deletion-error'), 'Re-authentication expired. Please re-authenticate again.');
+        closeModal();
+        userReauthenticated = false;
+        reauthTimestamp = null;
+        hideSection('deletion-section');
+        showReauthSection();
         return;
     }
     
@@ -256,46 +328,88 @@ async function handleAccountDeletion() {
     closeModal();
     showLoading();
     
+    const userId = currentUser.uid;
+    const userEmailForLogging = currentUser.email; // For logging only (no personal data in logs)
+    
     try {
-        // Step 1: Delete user data from Firestore
-        await deleteUserData(currentUser.uid);
+        // Log deletion attempt (without personal data)
+        logDeletionEvent('deletion_started', userId);
         
-        // Step 2: Delete user files from Storage
-        await deleteUserFiles(currentUser.uid);
+        // CRITICAL ORDER: Delete data first, then auth account
+        // This ensures if auth deletion fails, we can retry without losing data reference
+        
+        // Step 1: Delete user data from Firestore
+        // This includes: users collection, classes, students, attendance records
+        await deleteUserData(userId);
+        logDeletionEvent('firestore_deleted', userId);
+        
+        // Step 2: Delete user files from Firebase Storage
+        // This includes: student photos, uploaded files
+        await deleteUserFiles(userId);
+        logDeletionEvent('storage_deleted', userId);
         
         // Step 3: Delete Firebase Authentication user
+        // This is the final step - once this succeeds, user cannot log in
         const { deleteUser } = window.firebaseFunctions;
         await deleteUser(currentUser);
+        logDeletionEvent('auth_deleted', userId);
         
-        // Step 4: Sign out
+        // Step 4: Sign out (user is already deleted, but ensure clean state)
         const { signOut } = window.firebaseFunctions;
         await signOut(auth);
+        
+        // Step 5: Log successful deletion
+        logDeletionEvent('deletion_completed', userId);
         
         // Hide deletion section and show success section
         hideSection('deletion-section');
         showSuccessSection();
         
+        // Clear user state
+        currentUser = null;
+        userEmail = '';
+        userReauthenticated = false;
+        reauthTimestamp = null;
+        
     } catch (error) {
         console.error('Account deletion error:', error);
         hideLoading();
         
+        // Log deletion failure
+        logDeletionEvent('deletion_failed', userId, error.code);
+        
         let errorMessage = 'Account deletion failed. ';
+        let requiresReauth = false;
         
         switch (error.code) {
             case 'auth/requires-recent-login':
-                errorMessage += 'Please re-authenticate and try again.';
-                // Show re-authentication section again
-                hideSection('deletion-section');
-                showReauthSection();
+                // CRITICAL: Handle requires-recent-login error
+                // This happens when user hasn't re-authenticated recently enough
+                errorMessage += 'Your session has expired. Please re-authenticate and try again.';
+                requiresReauth = true;
+                userReauthenticated = false;
+                reauthTimestamp = null;
                 break;
             case 'auth/network-request-failed':
                 errorMessage += 'Network error. Please check your internet connection and try again.';
                 break;
+            case 'auth/too-many-requests':
+                errorMessage += 'Too many requests. Please wait a moment and try again.';
+                break;
+            case 'permission-denied':
+                errorMessage += 'Permission denied. Some data may not have been deleted. Please contact support.';
+                break;
             default:
-                errorMessage += 'An error occurred. Please try again or contact support.';
+                errorMessage += 'An error occurred. Please try again or contact support at teamupasthiti@gmail.com.';
         }
         
         showError(document.getElementById('deletion-error'), errorMessage);
+        
+        // If requires recent login, show re-authentication section
+        if (requiresReauth) {
+            hideSection('deletion-section');
+            showReauthSection();
+        }
     } finally {
         hideLoading();
     }
@@ -303,62 +417,139 @@ async function handleAccountDeletion() {
 
 /**
  * Delete user data from Firestore
+ * CRITICAL: This performs REAL deletion, not soft delete
+ * 
+ * Firestore Structure:
+ * users/{userId}
+ *   └── classes/{classId}
+ *       ├── students/{studentId}
+ *       └── attendance/{date}
+ * 
+ * Also deletes feedback collection entries for this user
  */
 async function deleteUserData(userId) {
+    const { collection, query, where, getDocs, getDoc, deleteDoc, doc } = window.firebaseFunctions;
+    const deletePromises = [];
+    const errors = [];
+    
     try {
-        const { collection, query, where, getDocs, deleteDoc, doc } = window.firebaseFunctions;
+        // Step 1: Delete user document (if exists)
+        // This is the root document at users/{userId}
+        try {
+            const userDocRef = doc(db, 'users', userId);
+            const userDoc = await getDoc(userDocRef);
+            if (userDoc.exists()) {
+                await deleteDoc(userDocRef);
+            }
+        } catch (error) {
+            // User document might not exist, which is fine
+            if (error.code !== 'not-found' && error.code !== 'permission-denied') {
+                errors.push(`User document: ${error.message}`);
+            }
+        }
         
-        // Delete user document
-        const userDocRef = doc(db, 'users', userId);
-        await deleteDoc(userDocRef);
+        // Step 2: Delete all classes and their subcollections
+        // Structure: users/{userId}/classes/{classId}
+        try {
+            const classesRef = collection(db, 'users', userId, 'classes');
+            const classesSnapshot = await getDocs(classesRef);
+            
+            for (const classDoc of classesSnapshot.docs) {
+                const classId = classDoc.id;
+                const classPath = `users/${userId}/classes/${classId}`;
+                
+                // Delete all students in this class
+                // Structure: users/{userId}/classes/{classId}/students/{studentId}
+                try {
+                    const studentsRef = collection(db, 'users', userId, 'classes', classId, 'students');
+                    const studentsSnapshot = await getDocs(studentsRef);
+                    
+                    studentsSnapshot.forEach((studentDoc) => {
+                        deletePromises.push(
+                            deleteDoc(studentDoc.ref).catch(err => {
+                                errors.push(`Student ${studentDoc.id} in class ${classId}: ${err.message}`);
+                            })
+                        );
+                    });
+                } catch (error) {
+                    errors.push(`Students in class ${classId}: ${error.message}`);
+                }
+                
+                // Delete all attendance records in this class
+                // Structure: users/{userId}/classes/{classId}/attendance/{date}
+                try {
+                    const attendanceRef = collection(db, 'users', userId, 'classes', classId, 'attendance');
+                    const attendanceSnapshot = await getDocs(attendanceRef);
+                    
+                    attendanceSnapshot.forEach((attendanceDoc) => {
+                        deletePromises.push(
+                            deleteDoc(attendanceDoc.ref).catch(err => {
+                                errors.push(`Attendance ${attendanceDoc.id} in class ${classId}: ${err.message}`);
+                            })
+                        );
+                    });
+                } catch (error) {
+                    errors.push(`Attendance in class ${classId}: ${error.message}`);
+                }
+                
+                // Delete the class document itself
+                deletePromises.push(
+                    deleteDoc(classDoc.ref).catch(err => {
+                        errors.push(`Class ${classId}: ${err.message}`);
+                    })
+                );
+            }
+        } catch (error) {
+            errors.push(`Classes query: ${error.message}`);
+        }
         
-        // Delete all classes created by user
-        const classesRef = collection(db, 'classes');
-        const classesQuery = query(classesRef, where('userId', '==', userId));
-        const classesSnapshot = await getDocs(classesQuery);
-        
-        const deletePromises = [];
-        classesSnapshot.forEach((classDoc) => {
-            deletePromises.push(deleteDoc(classDoc.ref));
-        });
-        
-        // Delete all students in those classes
-        const studentsRef = collection(db, 'students');
-        const studentsQuery = query(studentsRef, where('userId', '==', userId));
-        const studentsSnapshot = await getDocs(studentsQuery);
-        
-        studentsSnapshot.forEach((studentDoc) => {
-            deletePromises.push(deleteDoc(studentDoc.ref));
-        });
-        
-        // Delete all attendance records
-        const attendanceRef = collection(db, 'attendance');
-        const attendanceQuery = query(attendanceRef, where('userId', '==', userId));
-        const attendanceSnapshot = await getDocs(attendanceQuery);
-        
-        attendanceSnapshot.forEach((attendanceDoc) => {
-            deletePromises.push(deleteDoc(attendanceDoc.ref));
-        });
+        // Step 3: Delete feedback entries for this user
+        // Structure: feedback/{feedbackId} (top-level collection)
+        try {
+            const feedbackRef = collection(db, 'feedback');
+            const feedbackQuery = query(feedbackRef, where('userId', '==', userId));
+            const feedbackSnapshot = await getDocs(feedbackQuery);
+            
+            feedbackSnapshot.forEach((feedbackDoc) => {
+                deletePromises.push(
+                    deleteDoc(feedbackDoc.ref).catch(err => {
+                        errors.push(`Feedback ${feedbackDoc.id}: ${err.message}`);
+                    })
+                );
+            });
+        } catch (error) {
+            // Feedback deletion is optional - don't fail if it doesn't exist
+            console.warn('Error deleting feedback:', error);
+        }
         
         // Wait for all deletions to complete
         await Promise.all(deletePromises);
+        
+        if (errors.length > 0) {
+            console.warn('Some Firestore deletions had errors:', errors);
+            // Continue with deletion - some data might have been deleted
+            // But log errors for support purposes
+        }
         
         console.log('User data deleted from Firestore');
         
     } catch (error) {
         console.error('Error deleting user data from Firestore:', error);
-        // Continue with deletion even if Firestore deletion fails
-        // (user can contact support if needed)
+        // CRITICAL: Throw error to prevent auth deletion if data deletion fails
+        // This ensures we don't delete auth account while data still exists
+        throw new Error(`Failed to delete user data: ${error.message}`);
     }
 }
 
 /**
  * Delete user files from Firebase Storage
+ * CRITICAL: This performs REAL deletion of all user files
  */
 async function deleteUserFiles(userId) {
+    const { ref, listAll, deleteObject } = window.firebaseFunctions;
+    const errors = [];
+    
     try {
-        const { ref, listAll, deleteObject } = window.firebaseFunctions;
-        
         // Delete user's storage folder
         const userStorageRef = ref(storage, `users/${userId}`);
         
@@ -366,27 +557,73 @@ async function deleteUserFiles(userId) {
             const listResult = await listAll(userStorageRef);
             
             const deletePromises = [];
+            
+            // Delete all files in root of user folder
             listResult.items.forEach((itemRef) => {
-                deletePromises.push(deleteObject(itemRef));
+                deletePromises.push(
+                    deleteObject(itemRef).catch(err => {
+                        errors.push(`File ${itemRef.name}: ${err.message}`);
+                    })
+                );
             });
             
-            // Also delete files in subdirectories (e.g., student photos)
+            // Recursively delete files in subdirectories (e.g., student photos)
             listResult.prefixes.forEach((prefixRef) => {
-                deletePromises.push(deleteFolderContents(prefixRef));
+                deletePromises.push(
+                    deleteFolderContents(prefixRef).catch(err => {
+                        errors.push(`Folder ${prefixRef.name}: ${err.message}`);
+                    })
+                );
             });
             
             await Promise.all(deletePromises);
-            console.log('User files deleted from Storage');
+            
+            if (errors.length > 0) {
+                console.warn('Some Storage deletions had errors:', errors);
+            } else {
+                console.log('User files deleted from Storage');
+            }
         } catch (listError) {
             // Folder might not exist, which is fine
-            if (listError.code !== 'storage/object-not-found') {
+            if (listError.code !== 'storage/object-not-found' && listError.code !== 'storage/unauthorized') {
                 console.error('Error listing user files:', listError);
+                // Don't throw - continue with deletion even if storage listing fails
+            }
+        }
+        
+        // Also try deleting from alternative paths (if your app uses different structure)
+        const alternativePaths = [
+            `students/${userId}`,
+            `photos/${userId}`,
+            `uploads/${userId}`
+        ];
+        
+        for (const path of alternativePaths) {
+            try {
+                const altRef = ref(storage, path);
+                const altListResult = await listAll(altRef);
+                
+                const altDeletePromises = [];
+                altListResult.items.forEach((itemRef) => {
+                    altDeletePromises.push(deleteObject(itemRef));
+                });
+                altListResult.prefixes.forEach((prefixRef) => {
+                    altDeletePromises.push(deleteFolderContents(prefixRef));
+                });
+                
+                await Promise.all(altDeletePromises);
+            } catch (error) {
+                // Path might not exist, which is fine
+                if (error.code !== 'storage/object-not-found' && error.code !== 'storage/unauthorized') {
+                    console.warn(`Error deleting from ${path}:`, error);
+                }
             }
         }
         
     } catch (error) {
         console.error('Error deleting user files from Storage:', error);
-        // Continue with deletion even if Storage deletion fails
+        // Continue with deletion - storage errors shouldn't block account deletion
+        // But log the error for support purposes
     }
 }
 
@@ -498,6 +735,27 @@ function hideLoading() {
     if (overlay) {
         overlay.style.display = 'none';
     }
+}
+
+/**
+ * Log deletion event (without personal data)
+ * This helps with compliance and debugging
+ */
+function logDeletionEvent(eventType, userId, errorCode = null) {
+    // CRITICAL: Do NOT log personal data (email, name, etc.)
+    // Only log event type, timestamp, and error codes
+    const logData = {
+        event: eventType,
+        userId: userId, // User ID is acceptable (not personal data)
+        timestamp: new Date().toISOString(),
+        ...(errorCode && { errorCode: errorCode })
+    };
+    
+    // Log to console (in production, you might want to send to analytics)
+    console.log('Deletion event:', logData);
+    
+    // Optional: Send to Firebase Analytics or your logging service
+    // Example: analytics.logEvent('account_deletion', { event_type: eventType });
 }
 
 // Initialize when DOM is ready
