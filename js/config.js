@@ -8,10 +8,10 @@
 // Update these with your actual GitHub Pages URLs
 const CONFIG = {
     // Privacy Policy URL (update with your GitHub username)
-    PRIVACY_POLICY_URL: 'https://your-username.github.io/upasthiti-privacy-policy/',
+    PRIVACY_POLICY_URL: 'https://trisharan3544.github.io/upasthiti-privacy-policy/',
     
     // Terms of Service URL
-    TERMS_URL: 'https://your-username.github.io/upasthiti-privacy-policy/terms.html',
+    TERMS_URL: 'https://trisharan3544.github.io/upasthiti-privacy-policy/terms.html',
     
     // Contact Email
     CONTACT_EMAIL: 'teamupasthiti@gmail.com'
