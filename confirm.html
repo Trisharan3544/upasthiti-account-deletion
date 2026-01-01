@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Step 3: Confirm Deletion - Delete Your Upasthiti Account</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="description" content="Confirm permanent deletion of your Upasthiti account">
+    
+    <!-- Firebase SDK v10 -->
+    <script type="module" src="js/firebase-init.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <img src="images/logo.png" alt="Upasthiti Logo" class="logo-img" onerror="this.style.display='none'">
+                    <h1 class="app-name">Upasthiti</h1>
+                </div>
+                <p class="tagline">Digital Attendance Management System</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="content-wrapper">
+                <div style="text-align: center; margin-bottom: var(--spacing-lg);">
+                    <span class="step-badge">Step 3 of 3</span>
+                </div>
+                <h1 class="page-title">Confirm Account Deletion</h1>
+                <p class="last-updated">Final confirmation to permanently delete your account</p>
+
+                <!-- Warning Section -->
+                <section class="section" id="warning-section">
+                    <div class="info-card warning-card">
+                        <h3 class="warning-title">
+                            ⚠️ Warning: This Action Is Permanent
+                            <span id="deletion-info-icon" style="margin-left: var(--spacing-xs);"></span>
+                        </h3>
+                        <p class="warning-text"><strong>This action is permanent and cannot be undone.</strong></p>
+                        <p>Once you delete your account:</p>
+                        <ul>
+                            <li>All your data will be permanently removed</li>
+                            <li>You will lose access to all your classes, students, and attendance records</li>
+                            <li>You will not be able to recover any information</li>
+                            <li>You will need to create a new account if you want to use Upasthiti again</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Deletion Section -->
+                <section class="section" id="deletion-section">
+                    <div class="info-card">
+                        <form id="deletion-form" class="auth-form">
+                            <div class="form-group">
+                                <label for="confirm-text">Type "DELETE" to confirm</label>
+                                <input type="text" id="confirm-text" name="confirm" required placeholder="Type DELETE here" autocomplete="off">
+                                <small class="form-hint">You must type "DELETE" exactly (case-sensitive) to proceed</small>
+                                <div id="confirm-text-error" class="field-error" style="display: none;"></div>
+                            </div>
+                            <div class="form-group checkbox-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="confirm-checkbox" name="confirm-checkbox" required>
+                                    <span>I understand that this action is permanent and cannot be undone. I want to permanently delete my account and all associated data.</span>
+                                </label>
+                                <div id="checkbox-error" class="field-error" style="display: none;"></div>
+                            </div>
+                            <div id="deletion-error" class="error-message" style="display: none;"></div>
+                            <button type="submit" class="btn btn-danger" id="delete-btn" disabled>Delete My Account Permanently</button>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- Back Link -->
+                <section class="section" style="text-align: center; border: none;">
+                    <a href="reauth.html" class="btn btn-secondary" style="display: inline-block; width: auto; padding: var(--spacing-sm) var(--spacing-lg); text-decoration: none;">
+                        ← Back to Re-Authentication
+                    </a>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <p>&copy; 2025 Upasthiti. All rights reserved.</p>
+                <div class="footer-links">
+                    <a href="https://your-username.github.io/upasthiti-privacy-policy/" class="footer-link">Privacy Policy</a>
+                    <a href="https://your-username.github.io/upasthiti-privacy-policy/terms.html" class="footer-link">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Confirmation Modal -->
+    <div id="confirm-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>Final Confirmation</h3>
+            <p>Are you absolutely sure you want to delete your account?</p>
+            <p class="warning-text"><strong>This action cannot be undone.</strong></p>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" id="cancel-delete">Cancel</button>
+                <button class="btn btn-danger" id="confirm-delete">Yes, Delete My Account</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner"></div>
+        <p>Processing your request...</p>
+    </div>
+
+    <script src="js/validation.js"></script>
+    <script src="js/popups.js"></script>
+    <script src="js/confirm.js"></script>
+</body>
+</html>
+

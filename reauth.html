@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Step 2: Re-Authenticate - Delete Your Upasthiti Account</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="description" content="Re-authenticate to confirm your identity">
+    
+    <!-- Firebase SDK v10 -->
+    <script type="module" src="js/firebase-init.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <img src="images/logo.png" alt="Upasthiti Logo" class="logo-img" onerror="this.style.display='none'">
+                    <h1 class="app-name">Upasthiti</h1>
+                </div>
+                <p class="tagline">Digital Attendance Management System</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="content-wrapper">
+                <div style="text-align: center; margin-bottom: var(--spacing-lg);">
+                    <span class="step-badge">Step 2 of 3</span>
+                </div>
+                <h1 class="page-title">Re-Authenticate Your Account</h1>
+                <p class="last-updated">For security purposes, please re-enter your password to confirm your identity.</p>
+
+                <!-- Re-Authentication Section -->
+                <section class="section" id="reauth-section">
+                    <div class="info-card">
+                        <p style="margin-bottom: var(--spacing-md);">
+                            You are logged in as: <strong id="user-email-display"></strong>
+                            <span id="reauth-help-icon" style="margin-left: var(--spacing-xs);"></span>
+                        </p>
+                        <form id="reauth-form" class="auth-form">
+                            <div class="form-group">
+                                <label for="reauth-password">Password</label>
+                                <input type="password" id="reauth-password" name="password" required autocomplete="current-password" placeholder="Re-enter your password">
+                                <small class="form-hint">Enter your account password again for security verification</small>
+                                <div id="password-error" class="field-error" style="display: none;"></div>
+                            </div>
+                            <div id="reauth-error" class="error-message" style="display: none;"></div>
+                            <button type="submit" class="btn btn-primary" id="reauth-btn">Confirm Password</button>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- Back Link -->
+                <section class="section" style="text-align: center; border: none;">
+                    <a href="login.html" class="btn btn-secondary" style="display: inline-block; width: auto; padding: var(--spacing-sm) var(--spacing-lg); text-decoration: none;">
+                        ← Back to Login
+                    </a>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <p>&copy; 2025 Upasthiti. All rights reserved.</p>
+                <div class="footer-links">
+                    <a href="https://your-username.github.io/upasthiti-privacy-policy/" class="footer-link">Privacy Policy</a>
+                    <a href="https://your-username.github.io/upasthiti-privacy-policy/terms.html" class="footer-link">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner"></div>
+        <p>Verifying...</p>
+    </div>
+
+    <script src="js/validation.js"></script>
+    <script src="js/popups.js"></script>
+    <script src="js/reauth.js"></script>
+</body>
+</html>
+

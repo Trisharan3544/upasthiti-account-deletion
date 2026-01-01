@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Step 1: Log In - Delete Your Upasthiti Account</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="description" content="Log in to delete your Upasthiti account">
+    
+    <!-- Firebase SDK v10 -->
+    <script type="module" src="js/firebase-init.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <img src="images/logo.png" alt="Upasthiti Logo" class="logo-img" onerror="this.style.display='none'">
+                    <h1 class="app-name">Upasthiti</h1>
+                </div>
+                <p class="tagline">Digital Attendance Management System</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="content-wrapper">
+                <div style="text-align: center; margin-bottom: var(--spacing-lg);">
+                    <span class="step-badge">Step 1 of 3</span>
+                </div>
+                <h1 class="page-title">Log In to Your Account</h1>
+                <p class="last-updated">Please log in with your Upasthiti account credentials to proceed with account deletion.</p>
+
+                <!-- Login Section -->
+                <section class="section" id="login-section">
+                    <div class="info-card">
+                        <form id="login-form" class="auth-form">
+                            <div class="form-group">
+                                <label for="login-email">
+                                    Email Address
+                                    <span id="email-help-icon"></span>
+                                </label>
+                                <input type="email" id="login-email" name="email" required autocomplete="email" placeholder="your.email@example.com">
+                                <small class="form-hint">Enter your registered email address</small>
+                                <div id="email-error" class="field-error" style="display: none;"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="login-password">
+                                    Password
+                                    <span id="password-help-icon"></span>
+                                </label>
+                                <input type="password" id="login-password" name="password" required autocomplete="current-password" placeholder="Enter your password">
+                                <small class="form-hint">Enter your account password</small>
+                                <div id="password-error" class="field-error" style="display: none;"></div>
+                            </div>
+                            <div id="login-error" class="error-message" style="display: none;"></div>
+                            <button type="submit" class="btn btn-primary" id="login-btn">Log In</button>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- Back Link -->
+                <section class="section" style="text-align: center; border: none;">
+                    <a href="index.html" class="btn btn-secondary" style="display: inline-block; width: auto; padding: var(--spacing-sm) var(--spacing-lg); text-decoration: none;">
+                        ← Back to Information
+                    </a>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <p>&copy; 2025 Upasthiti. All rights reserved.</p>
+                <div class="footer-links">
+                    <a href="https://your-username.github.io/upasthiti-privacy-policy/" class="footer-link">Privacy Policy</a>
+                    <a href="https://your-username.github.io/upasthiti-privacy-policy/terms.html" class="footer-link">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner"></div>
+        <p>Logging in...</p>
+    </div>
+
+    <script src="js/validation.js"></script>
+    <script src="js/popups.js"></script>
+    <script src="js/login.js"></script>
+</body>
+</html>
+

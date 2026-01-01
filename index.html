@@ -7,53 +7,6 @@
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <meta name="description" content="Delete your Upasthiti account and all associated data permanently">
-    
-    <!-- Firebase SDK v10 -->
-    <script type="module">
-        // Import Firebase modules
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-        import { getAuth, signInWithEmailAndPassword, reauthenticateWithCredential, EmailAuthProvider, deleteUser, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-        import { getFirestore, collection, query, where, getDocs, getDoc, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-        import { getStorage, ref, listAll, deleteObject } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
-        
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyCaD-W58OcmtiaaDpTxzH9HSJrv070-APo",
-            authDomain: "upasthiti3544.firebaseapp.com",
-            projectId: "upasthiti3544",
-            storageBucket: "upasthiti3544.firebasestorage.app",
-            messagingSenderId: "315766208745",
-            appId: "1:315766208745:android:3f7582fcb6e5e360549878"
-        };
-        
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const storage = getStorage(app);
-        
-        // Make Firebase instances globally available
-        window.firebaseAuth = auth;
-        window.firebaseDb = db;
-        window.firebaseStorage = storage;
-        window.firebaseFunctions = {
-            signInWithEmailAndPassword,
-            reauthenticateWithCredential,
-            EmailAuthProvider,
-            deleteUser,
-            signOut,
-            collection,
-            query,
-            where,
-            getDocs,
-            getDoc,
-            deleteDoc,
-            doc,
-            ref,
-            listAll,
-            deleteObject
-        };
-    </script>
 </head>
 <body>
     <!-- Header -->
@@ -82,8 +35,9 @@
                     <div class="info-card">
                         <p>This page allows you to permanently delete your Upasthiti account and all associated data. The deletion process is immediate and irreversible.</p>
                         <ul>
-                            <li><strong>Authentication Required:</strong> You must log in with your Upasthiti account credentials to proceed with deletion.</li>
-                            <li><strong>Re-Authentication:</strong> For security, you will be required to re-enter your password before deletion.</li>
+                            <li><strong>Step 1 - Authentication:</strong> You must log in with your Upasthiti account credentials.</li>
+                            <li><strong>Step 2 - Re-Authentication:</strong> For security, you will be required to re-enter your password.</li>
+                            <li><strong>Step 3 - Confirmation:</strong> You will confirm the permanent deletion of your account.</li>
                             <li><strong>Immediate Deletion:</strong> Once confirmed, your account and all data will be permanently deleted.</li>
                             <li><strong>No Recovery:</strong> This action cannot be undone. All your data will be permanently removed.</li>
                         </ul>
@@ -120,79 +74,14 @@
                     </div>
                 </section>
 
-                <!-- Login Section -->
-                <section class="section" id="login-section">
-                    <h2>Step 1: Log In</h2>
-                    <div class="info-card">
-                        <p>Please log in with your Upasthiti account credentials to proceed with account deletion.</p>
-                        <form id="login-form" class="auth-form">
-                            <div class="form-group">
-                                <label for="login-email">Email Address</label>
-                                <input type="email" id="login-email" name="email" required autocomplete="email" placeholder="your.email@example.com">
-                            </div>
-                            <div class="form-group">
-                                <label for="login-password">Password</label>
-                                <input type="password" id="login-password" name="password" required autocomplete="current-password" placeholder="Enter your password">
-                            </div>
-                            <div id="login-error" class="error-message" style="display: none;"></div>
-                            <button type="submit" class="btn btn-primary" id="login-btn">Log In</button>
-                        </form>
-                    </div>
-                </section>
-
-                <!-- Re-Authentication Section (Hidden until logged in) -->
-                <section class="section" id="reauth-section" style="display: none;">
-                    <h2>Step 2: Re-Authenticate</h2>
-                    <div class="info-card">
-                        <p>For security purposes, please re-enter your password to confirm your identity before proceeding with account deletion.</p>
-                        <form id="reauth-form" class="auth-form">
-                            <div class="form-group">
-                                <label for="reauth-password">Password</label>
-                                <input type="password" id="reauth-password" name="password" required autocomplete="current-password" placeholder="Re-enter your password">
-                            </div>
-                            <div id="reauth-error" class="error-message" style="display: none;"></div>
-                            <button type="submit" class="btn btn-primary" id="reauth-btn">Confirm Password</button>
-                        </form>
-                    </div>
-                </section>
-
-                <!-- Deletion Section (Hidden until re-authenticated) -->
-                <section class="section" id="deletion-section" style="display: none;">
-                    <h2>Step 3: Confirm Deletion</h2>
-                    <div class="info-card warning-card">
-                        <h3 class="warning-title">⚠️ Warning: This Action Is Permanent</h3>
-                        <p class="warning-text"><strong>This action is permanent and cannot be undone.</strong></p>
-                        <p>Once you delete your account:</p>
-                        <ul>
-                            <li>All your data will be permanently removed</li>
-                            <li>You will lose access to all your classes, students, and attendance records</li>
-                            <li>You will not be able to recover any information</li>
-                            <li>You will need to create a new account if you want to use Upasthiti again</li>
-                        </ul>
-                    </div>
-                    
-                    <form id="deletion-form" class="auth-form">
-                        <div class="form-group">
-                            <label for="confirm-text">Type "DELETE" to confirm</label>
-                            <input type="text" id="confirm-text" name="confirm" required placeholder="Type DELETE here" autocomplete="off">
-                        </div>
-                        <div class="form-group checkbox-group">
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="confirm-checkbox" name="confirm-checkbox" required>
-                                <span>I understand that this action is permanent and cannot be undone. I want to permanently delete my account and all associated data.</span>
-                            </label>
-                        </div>
-                        <div id="deletion-error" class="error-message" style="display: none;"></div>
-                        <button type="submit" class="btn btn-danger" id="delete-btn">Delete My Account Permanently</button>
-                    </form>
-                </section>
-
-                <!-- Success Message (Hidden until deletion succeeds) -->
-                <section class="section" id="success-section" style="display: none;">
-                    <div class="info-card success-card">
-                        <h3 class="success-title">✅ Account Deleted Successfully</h3>
-                        <p>Your Upasthiti account and all associated data have been permanently deleted.</p>
-                        <p>You have been automatically logged out. If you wish to use Upasthiti again in the future, you will need to create a new account.</p>
+                <!-- Start Deletion Process Button -->
+                <section class="section" id="start-section">
+                    <div class="info-card" style="text-align: center; padding: var(--spacing-xl);">
+                        <h3 style="margin-bottom: var(--spacing-md);">Ready to Delete Your Account?</h3>
+                        <p style="margin-bottom: var(--spacing-lg);">Click the button below to begin the account deletion process.</p>
+                        <a href="login.html" class="btn btn-primary" style="display: inline-block; width: auto; padding: var(--spacing-sm) var(--spacing-xl); text-decoration: none;">
+                            Start Account Deletion Process
+                        </a>
                     </div>
                 </section>
 
@@ -226,28 +115,5 @@
             </div>
         </div>
     </footer>
-
-    <!-- Confirmation Modal -->
-    <div id="confirm-modal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <h3>Final Confirmation</h3>
-            <p>Are you absolutely sure you want to delete your account?</p>
-            <p class="warning-text"><strong>This action cannot be undone.</strong></p>
-            <div class="modal-buttons">
-                <button class="btn btn-secondary" id="cancel-delete">Cancel</button>
-                <button class="btn btn-danger" id="confirm-delete">Yes, Delete My Account</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Loading Overlay -->
-    <div id="loading-overlay" class="loading-overlay" style="display: none;">
-        <div class="loading-spinner"></div>
-        <p>Processing your request...</p>
-    </div>
-
-    <script src="js/script.js"></script>
 </body>
 </html>
-
-
