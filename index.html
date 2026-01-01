@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Your Upasthiti Account</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="description" content="Delete your Upasthiti account and all associated data permanently">
+    
+    <!-- Firebase SDK v10 -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+        import { getAuth, signInWithEmailAndPassword, reauthenticateWithCredential, EmailAuthProvider, deleteUser, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+        import { getFirestore, collection, query, where, getDocs, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+        import { getStorage, ref, listAll, deleteObject } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
+        
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCaD-W58OcmtiaaDpTxzH9HSJrv070-APo",
+            authDomain: "upasthiti3544.firebaseapp.com",
+            projectId: "upasthiti3544",
+            storageBucket: "upasthiti3544.firebasestorage.app",
+            messagingSenderId: "315766208745",
+            appId: "1:315766208745:android:3f7582fcb6e5e360549878"
+        };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+        
+        // Make Firebase instances globally available
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+        window.firebaseStorage = storage;
+        window.firebaseFunctions = {
+            signInWithEmailAndPassword,
+            reauthenticateWithCredential,
+            EmailAuthProvider,
+            deleteUser,
+            signOut,
+            collection,
+            query,
+            where,
+            getDocs,
+            deleteDoc,
+            doc,
+            ref,
+            listAll,
+            deleteObject
+        };
+    </script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <img src="images/logo.png" alt="Upasthiti Logo" class="logo-img" onerror="this.style.display='none'">
+                    <h1 class="app-name">Upasthiti</h1>
+                </div>
+                <p class="tagline">Digital Attendance Management System</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="content-wrapper">
+                <h1 class="page-title">Delete Your Upasthiti Account</h1>
+                <p class="last-updated">Permanently delete your account and all associated data</p>
+
+                <!-- Informational Section (Visible without login) -->
+                <section class="section" id="information">
+                    <h2>How Account Deletion Works</h2>
+                    <div class="info-card">
+                        <p>This page allows you to permanently delete your Upasthiti account and all associated data. The deletion process is immediate and irreversible.</p>
+                        <ul>
+                            <li><strong>Authentication Required:</strong> You must log in with your Upasthiti account credentials to proceed with deletion.</li>
+                            <li><strong>Re-Authentication:</strong> For security, you will be required to re-enter your password before deletion.</li>
+                            <li><strong>Immediate Deletion:</strong> Once confirmed, your account and all data will be permanently deleted.</li>
+                            <li><strong>No Recovery:</strong> This action cannot be undone. All your data will be permanently removed.</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section class="section" id="data-deleted">
+                    <h2>What Data Is Deleted</h2>
+                    <div class="info-card">
+                        <p>When you delete your account, the following data will be permanently removed:</p>
+                        <ul>
+                            <li><strong>Account Information:</strong> Your email address, name, phone number, and profile information</li>
+                            <li><strong>Classes and Departments:</strong> All classes, departments, and organizational data you created</li>
+                            <li><strong>Student Information:</strong> All student records including names, roll numbers, contact details, and photos</li>
+                            <li><strong>Attendance Records:</strong> All attendance data, history, and reports</li>
+                            <li><strong>Uploaded Files:</strong> All student photos and other files stored in your account</li>
+                            <li><strong>Settings and Preferences:</strong> All app settings and user preferences</li>
+                        </ul>
+                        <p class="warning-text"><strong>All personal data associated with your Upasthiti account is permanently deleted.</strong></p>
+                    </div>
+                </section>
+
+                <section class="section" id="data-retention">
+                    <h2>Data Retention Policy</h2>
+                    <div class="info-card">
+                        <p><strong>No data is retained after account deletion.</strong></p>
+                        <ul>
+                            <li>Deletion is immediate and irreversible</li>
+                            <li>All data is permanently removed from our systems</li>
+                            <li>No backups or copies of your data are retained</li>
+                            <li>Your account cannot be recovered after deletion</li>
+                        </ul>
+                        <p class="warning-text">Once you delete your account, all data is permanently removed and cannot be recovered.</p>
+                    </div>
+                </section>
+
+                <!-- Login Section -->
+                <section class="section" id="login-section">
+                    <h2>Step 1: Log In</h2>
+                    <div class="info-card">
+                        <p>Please log in with your Upasthiti account credentials to proceed with account deletion.</p>
+                        <form id="login-form" class="auth-form">
+                            <div class="form-group">
+                                <label for="login-email">Email Address</label>
+                                <input type="email" id="login-email" name="email" required autocomplete="email" placeholder="your.email@example.com">
+                            </div>
+                            <div class="form-group">
+                                <label for="login-password">Password</label>
+                                <input type="password" id="login-password" name="password" required autocomplete="current-password" placeholder="Enter your password">
+                            </div>
+                            <div id="login-error" class="error-message" style="display: none;"></div>
+                            <button type="submit" class="btn btn-primary" id="login-btn">Log In</button>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- Re-Authentication Section (Hidden until logged in) -->
+                <section class="section" id="reauth-section" style="display: none;">
+                    <h2>Step 2: Re-Authenticate</h2>
+                    <div class="info-card">
+                        <p>For security purposes, please re-enter your password to confirm your identity before proceeding with account deletion.</p>
+                        <form id="reauth-form" class="auth-form">
+                            <div class="form-group">
+                                <label for="reauth-password">Password</label>
+                                <input type="password" id="reauth-password" name="password" required autocomplete="current-password" placeholder="Re-enter your password">
+                            </div>
+                            <div id="reauth-error" class="error-message" style="display: none;"></div>
+                            <button type="submit" class="btn btn-primary" id="reauth-btn">Confirm Password</button>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- Deletion Section (Hidden until re-authenticated) -->
+                <section class="section" id="deletion-section" style="display: none;">
+                    <h2>Step 3: Confirm Deletion</h2>
+                    <div class="info-card warning-card">
+                        <h3 class="warning-title">⚠️ Warning: This Action Is Permanent</h3>
+                        <p class="warning-text"><strong>This action is permanent and cannot be undone.</strong></p>
+                        <p>Once you delete your account:</p>
+                        <ul>
+                            <li>All your data will be permanently removed</li>
+                            <li>You will lose access to all your classes, students, and attendance records</li>
+                            <li>You will not be able to recover any information</li>
+                            <li>You will need to create a new account if you want to use Upasthiti again</li>
+                        </ul>
+                    </div>
+                    
+                    <form id="deletion-form" class="auth-form">
+                        <div class="form-group">
+                            <label for="confirm-text">Type "DELETE" to confirm</label>
+                            <input type="text" id="confirm-text" name="confirm" required placeholder="Type DELETE here" autocomplete="off">
+                        </div>
+                        <div class="form-group checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="confirm-checkbox" name="confirm-checkbox" required>
+                                <span>I understand that this action is permanent and cannot be undone. I want to permanently delete my account and all associated data.</span>
+                            </label>
+                        </div>
+                        <div id="deletion-error" class="error-message" style="display: none;"></div>
+                        <button type="submit" class="btn btn-danger" id="delete-btn">Delete My Account Permanently</button>
+                    </form>
+                </section>
+
+                <!-- Success Message (Hidden until deletion succeeds) -->
+                <section class="section" id="success-section" style="display: none;">
+                    <div class="info-card success-card">
+                        <h3 class="success-title">✅ Account Deleted Successfully</h3>
+                        <p>Your Upasthiti account and all associated data have been permanently deleted.</p>
+                        <p>You have been automatically logged out. If you wish to use Upasthiti again in the future, you will need to create a new account.</p>
+                    </div>
+                </section>
+
+                <!-- Contact Information -->
+                <section class="section contact-section" id="contact">
+                    <h2>Contact Information</h2>
+                    <p>If you have questions about account deletion or need assistance, please contact us:</p>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <strong>📧 Email:</strong> <a href="mailto:teamupasthiti@gmail.com">teamupasthiti@gmail.com</a>
+                        </div>
+                        <div class="contact-item">
+                            <strong>📱 App:</strong> Contact support through the Upasthiti app settings
+                        </div>
+                    </div>
+                    <p>We will respond to your inquiry within a reasonable timeframe (typically within 30 days).</p>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <p>&copy; 2025 Upasthiti. All rights reserved.</p>
+                <div class="footer-links">
+                    <a href="https://your-username.github.io/upasthiti-privacy-policy/" class="footer-link">Privacy Policy</a>
+                    <a href="https://your-username.github.io/upasthiti-privacy-policy/terms.html" class="footer-link">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Confirmation Modal -->
+    <div id="confirm-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>Final Confirmation</h3>
+            <p>Are you absolutely sure you want to delete your account?</p>
+            <p class="warning-text"><strong>This action cannot be undone.</strong></p>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" id="cancel-delete">Cancel</button>
+                <button class="btn btn-danger" id="confirm-delete">Yes, Delete My Account</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner"></div>
+        <p>Processing your request...</p>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
+
+
