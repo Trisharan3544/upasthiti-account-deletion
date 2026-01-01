@@ -13,7 +13,7 @@
         // Import Firebase modules
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
         import { getAuth, signInWithEmailAndPassword, reauthenticateWithCredential, EmailAuthProvider, deleteUser, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-        import { getFirestore, collection, query, where, getDocs, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+        import { getFirestore, collection, query, where, getDocs, getDoc, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
         import { getStorage, ref, listAll, deleteObject } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
         
         // Firebase configuration
@@ -46,6 +46,7 @@
             query,
             where,
             getDocs,
+            getDoc,
             deleteDoc,
             doc,
             ref,
