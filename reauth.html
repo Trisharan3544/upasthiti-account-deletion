@@ -57,7 +57,7 @@
 
                 <!-- Back Link -->
                 <section class="section" style="text-align: center; border: none;">
-                    <a href="login.html" class="btn btn-secondary" style="display: inline-block; width: auto; padding: var(--spacing-sm) var(--spacing-lg); text-decoration: none;">
+                    <a href="login.html" class="btn btn-secondary" style="display: inline-block; width: auto; padding: var(--spacing-sm) var(--spacing-lg); text-decoration: none; color: #FFFFFF !important;">
                         ← Back to Login
                     </a>
                 </section>
@@ -71,12 +71,24 @@
             <div class="footer-content">
                 <p>&copy; 2025 Upasthiti. All rights reserved.</p>
                 <div class="footer-links">
-                    <a href="https://your-username.github.io/upasthiti-privacy-policy/" class="footer-link">Privacy Policy</a>
-                    <a href="https://your-username.github.io/upasthiti-privacy-policy/terms.html" class="footer-link">Terms of Service</a>
+                    <a href="#" id="privacy-policy-link" class="footer-link" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+                    <a href="#" id="terms-link" class="footer-link" target="_blank" rel="noopener noreferrer">Terms of Service</a>
                 </div>
             </div>
         </div>
     </footer>
+
+    <script src="js/config.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.APP_CONFIG) {
+                const privacyLink = document.getElementById('privacy-policy-link');
+                const termsLink = document.getElementById('terms-link');
+                if (privacyLink) privacyLink.href = window.APP_CONFIG.PRIVACY_POLICY_URL;
+                if (termsLink) termsLink.href = window.APP_CONFIG.TERMS_URL;
+            }
+        });
+    </script>
 
     <!-- Loading Overlay -->
     <div id="loading-overlay" class="loading-overlay" style="display: none;">

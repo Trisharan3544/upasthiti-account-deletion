@@ -195,7 +195,13 @@ account-deletion/
    - Confirm: `https://[username].github.io/upasthiti-account-deletion/confirm.html`
    - Success: `https://[username].github.io/upasthiti-account-deletion/success.html`
 
-5. **Add to Google Play Console**
+5. **Configure Privacy Policy & Terms URLs**
+   - **IMPORTANT**: Edit `js/config.js`
+   - Update `PRIVACY_POLICY_URL` with your actual privacy policy URL
+   - Update `TERMS_URL` with your actual terms URL
+   - See `URL_CONFIGURATION.md` for detailed instructions
+
+6. **Add to Google Play Console**
    - Go to **App Content** → **Data Safety**
    - Under **Data deletion**, add the main page URL
 
