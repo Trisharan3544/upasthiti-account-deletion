@@ -68,16 +68,7 @@ account-deletion/
 
 The Firebase configuration is already set up in `index.html`:
 
-```javascript
-const firebaseConfig = {
-    apiKey: "AIzaSyCaD-W58OcmtiaaDpTxzH9HSJrv070-APo",
-    authDomain: "upasthiti3544.firebaseapp.com",
-    projectId: "upasthiti3544",
-    storageBucket: "upasthiti3544.firebasestorage.app",
-    messagingSenderId: "315766208745",
-    appId: "1:315766208745:android:3f7582fcb6e5e360549878"
-};
-```
+
 
 **Note**: The Firebase API key is public and safe to expose. It's restricted by domain and package name in Firebase Console.
 
@@ -156,4 +147,5 @@ This account deletion page is part of the Upasthiti project. All rights reserved
 ---
 
 **Important**: This page must be publicly accessible for Google Play compliance. Do not require login to view the page - only require login to execute deletion.
+
 
